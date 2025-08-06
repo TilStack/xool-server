@@ -31,7 +31,7 @@ export class GeminiService {
 
         if (!chat) {
             chat = this.googleAI.chats.create({
-                model: 'gemini-1.5-flash', // ou gemini-1.5-pro
+                model: GEMINI_MODEL, // ou gemini-1.5-pro
             });
             this.chatSessions.set(sid, chat);
             this.logger.log(`💬 Nouvelle session de chat créée : ${sid}`);
@@ -42,11 +42,18 @@ export class GeminiService {
     
     async generateText(data:PromptDto){
         try {
+
+            const { sessionId, chat } = this.getChatSession(data.sessionId);
             const response = await this.googleAI.models.generateContent({
                 model: GEMINI_MODEL,
                 contents: data.prompt
             });
             console.log(response.text);
+
+            return{
+                sessionId,
+                result : response.text
+            }
         } catch (error) {
             console.log(error)
             this.logger.error('Error generating text:', error);
